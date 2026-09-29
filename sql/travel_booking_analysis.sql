@@ -27,3 +27,25 @@ SELECT
 FROM travel_bookings
 GROUP BY "Booking_ID"
 HAVING COUNT(*) > 1;
+
+
+-- 1.3 Calculate overall cancellation rate
+
+SELECT
+    COUNT(*) AS total_bookings,
+    SUM(
+        CASE
+            WHEN "Cancellation_Status" = 'Cancelled' THEN 1
+            ELSE 0
+        END
+    ) AS cancelled_bookings,
+    ROUND(
+        100.0 * SUM(
+            CASE
+                WHEN "Cancellation_Status" = 'Cancelled' THEN 1
+                ELSE 0
+            END
+        ) / COUNT(*),
+        1
+    ) AS cancellation_rate
+FROM travel_bookings;
