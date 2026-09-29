@@ -49,3 +49,14 @@ SELECT
         1
     ) AS cancellation_rate
 FROM travel_bookings;
+
+
+-- 1.4 Analyse cancellation reasons
+
+SELECT
+    "Cancellation_Reason",
+    COUNT(*) AS cancelled_bookings
+FROM travel_bookings
+WHERE "Cancellation_Status" = 'Cancelled'
+GROUP BY "Cancellation_Reason"
+ORDER BY cancelled_bookings DESC;
