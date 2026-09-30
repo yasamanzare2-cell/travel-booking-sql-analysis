@@ -64,3 +64,37 @@ The initial exploration focused on:
 | Duplicate Booking IDs | 0 |
 
 These checks confirmed that the dataset contained 1,000 booking records and no duplicate Booking IDs were identified.
+
+
+## Methodology
+
+The analysis followed a structured process using SQL to explore the booking data and Tableau to visualise the findings.
+
+### Analysis Process
+
+1. **Data validation** – Checked the dataset structure, record count and duplicate Booking IDs.
+2. **Data exploration** – Reviewed booking, cancellation, financial and customer experience variables.
+3. **Descriptive analysis** – Calculated counts, averages, totals and cancellation rates.
+4. **Grouping and segmentation** – Compared results across destinations, transportation, lead time, trip value, discounts and customer experience factors.
+5. **Comparative analysis** – Compared cancellation rates and customer ratings across different booking characteristics.
+6. **SQL analysis** – Used PostgreSQL/Supabase to answer the key business questions and identify patterns in the data.
+7. **Tableau visualisation** – Created charts and a dashboard to communicate the key findings clearly.
+8. **Business interpretation** – Considered what the findings could mean for booking management and customer experience.
+
+### SQL Techniques Used
+
+- `COUNT()`
+- `SUM()`
+- `AVG()`
+- `GROUP BY`
+- `WHERE`
+- `CASE WHEN`
+- Common Table Expressions (CTEs)
+- Conditional aggregation
+- Percentage calculations
+- Filtering and sorting
+
+### Tools
+
+- **PostgreSQL / Supabase** – Data analysis and SQL queries
+- **Tableau** – Data visualisation and dashboard development
