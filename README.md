@@ -109,3 +109,18 @@ The analysis followed a structured process using SQL to explore the booking data
 What does the overall booking performance look like?
 
 This analysis establishes the basic scale of the dataset and provides a starting point for understanding booking and cancellation behaviour.
+
+
+#### SQL Query
+
+```sql
+SELECT
+    COUNT(*) AS total_bookings,
+    ROUND(AVG("Total_Trip_Cost"), 2) AS average_trip_cost,
+    ROUND(AVG("Customer_Rating"), 2) AS average_customer_rating,
+    ROUND(AVG("Number_of_Nights"), 2) AS average_nights
+FROM travel_bookings;
+
+#### Result
+
+The query provides an overview of the booking dataset by calculating the total number of bookings, average trip cost, average customer rating and average number of nights.
