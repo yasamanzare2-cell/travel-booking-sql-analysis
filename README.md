@@ -1,3 +1,8 @@
+
+<img width="1882" height="831" alt="image" src="https://github.com/user-attachments/assets/d57105b8-316b-48fb-9555-d37ba89bbda6" />
+
+
+
 # Travel Booking Cancellation & Customer Experience Analysis
 
 ## Executive Summary
@@ -414,6 +419,70 @@ The results show that cancellation rates were not consistent across trip cost gr
 
 Higher-value bookings may represent greater financial exposure when cancelled. Understanding how cancellation behaviour varies across trip cost groups could help the business investigate whether booking conditions, customer circumstances or other factors are associated with cancellations.
 
+
+### SQL Query — Discount Analysis
+
+```sql
+SELECT
+    CASE
+        WHEN "Discount_Amount" = 0 THEN 'No discount'
+        WHEN "Discount_Amount" < 10000 THEN 'Low discount'
+        WHEN "Discount_Amount" < 25000 THEN 'Medium discount'
+        ELSE 'High discount'
+    END AS discount_band,
+
+    COUNT(*) AS total_bookings,
+
+    SUM(
+        CASE
+            WHEN "Cancellation_Status" = 'Cancelled' THEN 1
+            ELSE 0
+        END
+    ) AS cancelled_bookings,
+
+    ROUND(
+        (
+            100.0 * SUM(
+                CASE
+                    WHEN "Cancellation_Status" = 'Cancelled' THEN 1
+                    ELSE 0
+                END
+            ) / COUNT(*)
+        )::numeric,
+        1
+    ) AS cancellation_rate
+
+FROM travel_bookings
+
+GROUP BY
+    CASE
+        WHEN "Discount_Amount" = 0 THEN 'No discount'
+        WHEN "Discount_Amount" < 10000 THEN 'Low discount'
+        WHEN "Discount_Amount" < 25000 THEN 'Medium discount'
+        ELSE 'High discount'
+    END
+
+ORDER BY
+    MIN("Discount_Amount");
+```
+
+<img width="1036" height="340" alt="image" src="https://github.com/user-attachments/assets/e5aa3392-8208-45b6-ab07-c3ee62b139bb" />
+
+
+#### Result
+
+Cancellation rates were relatively similar across the no, low and medium discount groups, ranging from 13.7% to 13.9%. The high discount group had the highest cancellation rate at 15.3%.
+
+#### What does it tell us?
+
+The results show that cancellation rates were broadly consistent across the first three discount groups, while bookings receiving higher discounts had a slightly higher cancellation rate. However, this analysis shows an association rather than proving that higher discounts caused cancellations.
+
+#### Why does it matter to the business?
+
+Understanding how cancellation rates vary across discount levels can help the business assess whether discounting strategies are associated with different booking outcomes. Further analysis could investigate whether factors such as booking value, destination or customer characteristics also influence this relationship.
+
+
+
 ### SQL Query — Customer Rating by Cancellation Status
 
 ```sql
@@ -491,3 +560,99 @@ The Tableau dashboard brings together the key findings from the analysis into on
 The dashboard provides a visual summary of the analysis and makes it easier to identify patterns and areas that may require further investigation.
 
 <img width="2598" height="1592" alt="image" src="https://github.com/user-attachments/assets/8a6f4eeb-719d-4303-83c0-7bd59955765c" />
+
+
+## Key Results
+
+The analysis identified several key patterns across booking behaviour, cancellations, booking value, discounts and customer experience:
+
+- **Booking performance:** The dataset contained 1,000 bookings, of which 141 were cancelled, giving an overall cancellation rate of **14.1%**.
+
+- **Cancellation behaviour:** Cancellation rates varied across booking characteristics. Destination cancellation rates ranged from **3.3% to 26.7%** among destinations with at least 20 bookings, while booking lead-time cancellation rates ranged from **8.1% to 16.8%**.
+
+- **Cancellation reasons:** Family emergencies were the most common recorded cancellation reason, followed by transportation disruption, visa issues and budget constraints. These four reasons accounted for **66.7% of all cancellations**.
+
+- **Booking value:** Cancellation rates varied across trip cost groups, with the highest-cost 25% of bookings having the highest cancellation rate at **16.8%**, compared with **11.2%** for the 25%–50% group.
+
+- **Discounts:** Cancellation rates were relatively similar across the no, low and medium discount groups, ranging from **13.7% to 13.9%**, while the high discount group had a slightly higher rate of **15.3%**.
+
+- **Customer experience:** Customer ratings varied across different booking characteristics. Average ratings by meal plan ranged from **2.83 to 3.14**, while ratings across transportation types ranged from **2.95 to 3.11**.
+
+Overall, the analysis demonstrates how SQL and Tableau can be used to identify patterns in booking behaviour, cancellation activity, financial characteristics and customer experience, providing areas for further business investigation.
+
+
+## Business Recommendations
+
+Based on the findings from the SQL and Tableau analysis, the following recommendations could be considered:
+
+### 1. Investigate destinations with higher cancellation rates
+
+The analysis identified differences in cancellation rates between destinations, with Kochi and Bali showing higher rates among destinations with at least 20 bookings.
+
+The business could investigate whether factors such as travel requirements, transportation disruption, booking conditions or seasonality may contribute to these differences.
+
+### 2. Review cancellation patterns by booking lead time
+
+Cancellation rates varied across booking lead-time groups, with the 61–90 day group showing the lowest cancellation rate and the 0–30 day and 90+ day groups showing higher rates.
+
+The business could review whether different booking communications, reminders or cancellation information may be appropriate at different stages of the booking journey.
+
+### 3. Monitor higher-value bookings
+
+The highest-cost 25% of bookings had a higher cancellation rate than the 25%–50% cost group.
+
+The business could monitor cancellation patterns among higher-value bookings and investigate whether additional booking information, clearer cancellation policies or other factors are associated with these cancellations.
+
+### 4. Review discounting patterns
+
+The high discount group had a slightly higher cancellation rate than the other discount groups.
+
+The business could monitor whether different discount levels are associated with different booking outcomes and consider analysing discounts alongside factors such as destination, booking value and customer characteristics.
+
+### 5. Improve the use of customer feedback data
+
+Customer ratings varied across meal plans and transportation types. However, the analysis also identified that cancelled bookings had an average recorded rating of 0.00, which may indicate missing ratings rather than genuine zero-star feedback.
+
+The business should ensure that missing or unavailable customer ratings are distinguished from genuine ratings before using customer feedback data to make decisions.
+
+### 6. Investigate the main cancellation reasons
+
+Family emergencies, transportation disruption, visa issues and budget constraints were the most frequently recorded cancellation reasons.
+
+The business could review whether additional information, clearer communication or support around these areas could help customers manage potential booking issues.
+
+
+## Limitations
+
+There are several limitations to consider when interpreting the findings:
+
+- The dataset contains **1,000 bookings**, so the findings may not represent booking behaviour across a larger or different customer population.
+
+- The analysis identifies **associations rather than causation**. For example, a higher cancellation rate within a particular discount or lead-time group does not demonstrate that the factor caused the cancellation.
+
+- Some destinations have relatively small booking volumes. A minimum threshold of **20 bookings** was therefore applied to the destination analysis to reduce the risk of interpreting results from very small groups.
+
+- The customer rating analysis has a data-quality limitation because cancelled bookings had an average recorded rating of **0.00**. These values may represent missing ratings rather than genuine zero-star feedback.
+
+- The analysis is based on the variables available in the dataset. Other factors that may influence cancellations, such as specific customer circumstances or seasonal events, were not available for analysis.
+
+## Technical Skills
+
+- **SQL:** PostgreSQL, Supabase, CTEs, `CASE WHEN`, conditional aggregation, grouping, filtering, sorting and percentage calculations
+- **Data Analysis:** Data exploration, data validation, descriptive analysis, segmentation and comparative analysis
+- **Tableau:** Data visualisation, calculated measures, filters, interactive dashboards, bar charts, KPI cards, trend analysis and dashboard layout/design
+- **Business Analysis:** Identifying patterns, interpreting results, communicating insights and developing data-driven recommendations
+
+## Next Steps
+
+The analysis identified several areas that could be explored further with additional data or more detailed analysis:
+
+- **Investigate cancellation drivers further:** Analyse whether destination, booking lead time, discount level, trip cost and transportation type interact with each other rather than considering each factor separately.
+
+- **Explore customer characteristics:** Investigate whether factors such as age, gender, number of travellers or country of origin are associated with cancellation behaviour or customer ratings.
+
+- **Analyse seasonality:** Compare bookings and cancellations across different months or travel periods to identify potential seasonal patterns.
+
+- **Improve customer rating analysis:** Distinguish between genuine customer ratings and missing or unavailable ratings, particularly for cancelled bookings.
+
+- **Expand the dataset:** Use a larger dataset covering a longer time period to provide a stronger basis for identifying recurring patterns.
