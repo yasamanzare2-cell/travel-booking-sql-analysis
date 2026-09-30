@@ -2,33 +2,43 @@
 
 ## Executive Summary
 
-A travel booking company wants to understand why some bookings are cancelled and whether booking characteristics are associated with different customer experiences.
+This project analyses travel booking data to understand cancellation behaviour and customer experience.
 
-Using SQL, I analysed 1,000 travel booking records to investigate cancellation patterns, booking value and customer ratings. I then used Tableau to present the findings in an interactive dashboard.
+Using SQL, I explored 1,000 travel bookings to investigate booking patterns, cancellation behaviour, booking value, discounts and customer ratings. The analysis was designed to identify patterns that could support better booking management and customer experience decisions.
 
-The analysis found that:
-
-- **14.1% of bookings were cancelled**
-- **141 bookings** were cancelled
-- **£34.58M** in booking value was associated with cancelled bookings
-- The four most common cancellation reasons accounted for approximately **66.7% of all cancellations**
-- Cancellation rates varied considerably between destinations, ranging from **3.3% to 26.7%** among destinations with at least 20 bookings
-- Cancellation rates also varied by booking lead time, with bookings made **61–90 days before travel having the lowest cancellation rate at 8.1%**
-- Customer ratings varied across meal plans, with **Half Board averaging 3.14 compared with 2.83 for Full Board**
-
-The analysis was used to identify patterns that could help a travel booking company better understand cancellation risk, monitor financial impact and investigate differences in customer experience.
-
----
+The analysis was then visualised in Tableau to communicate the findings clearly to business stakeholders.
 
 ## Business Problem
 
-A travel company wants to understand where cancellations are occurring, what reasons customers give for cancelling and whether certain booking characteristics are associated with higher cancellation rates.
+A travel booking company wants to understand why some bookings are cancelled and whether booking characteristics are associated with different customer experiences.
 
-The business also wants to understand the financial impact of cancellations and whether different aspects of a booking are associated with differences in customer ratings.
+The company wants to use its booking data to identify patterns that could support better booking management and customer experience decisions.
 
-The analysis therefore focuses on four key areas:
+### Key Business Questions
 
-- Cancellation behaviour
-- Financial impact
-- Booking characteristics
-- Customer experience
+1. What does overall booking performance look like?
+2. Which destinations and travel characteristics are associated with higher cancellation rates?
+3. Is booking value associated with cancellation behaviour?
+4. How does cancellation behaviour vary across different discount levels?
+5. Which travel characteristics are associated with different customer ratings?
+
+
+## Dataset
+
+The dataset contains **1,000 travel booking records** across **29 variables**.
+
+The data includes information relating to:
+
+| Category | Example Variables |
+|---|---|
+| Customer | Age, gender, country |
+| Booking | Booking date, travel date, booking status |
+| Destination | Destination city, destination country |
+| Accommodation | Hotel, hotel rating, rooms |
+| Trip | Number of travellers, number of nights, meal plan |
+| Financial | Discount amount, total trip cost |
+| Customer Experience | Customer rating, review |
+| Cancellation | Cancellation status, cancellation reason |
+| Transportation | Transportation type |
+
+The dataset was used to investigate booking performance, cancellation behaviour, financial impact and customer experience.
