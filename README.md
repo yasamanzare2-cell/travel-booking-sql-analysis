@@ -42,3 +42,25 @@ The data includes information relating to:
 | Transportation | Transportation type |
 
 The dataset was used to investigate booking performance, cancellation behaviour, financial impact and customer experience.
+
+
+## Data Exploration
+
+Before carrying out the business analysis, the dataset was explored to understand its structure and check for potential data quality issues.
+
+The initial exploration focused on:
+
+- Confirming the total number of bookings
+- Checking for duplicate Booking IDs
+- Reviewing cancellation status
+- Reviewing key booking and customer experience fields
+- Validating the data before carrying out further analysis
+
+### Initial Checks
+
+| Check | Result |
+|---|---:|
+| Total bookings | 1,000 |
+| Duplicate Booking IDs | 0 |
+
+These checks confirmed that the dataset contained 1,000 booking records and no duplicate Booking IDs were identified.
