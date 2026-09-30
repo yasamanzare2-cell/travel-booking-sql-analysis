@@ -132,8 +132,8 @@ SELECT
     ) AS cancellation_rate
 FROM travel_bookings;
 
-```markdown
-![SQL query showing overall cancellation rate](cancellation-rate-sql.png)
+
+![SQL query showing overall cancellation rate](cancellation-rate-sql.png) 
 
 
 #### Result
