@@ -102,25 +102,67 @@ The analysis followed a structured process using SQL to explore the booking data
 
 ## SQL Business Analysis
 
-### Analysis 1 — Booking Overview
+### Analysis 1 — Cancellation Analysis
 
 #### Business Question
 
-What does the overall booking performance look like?
+How common are booking cancellations, what are the main reasons customers cancel, and what patterns can be identified in cancellation behaviour?
 
-This analysis establishes the basic scale of the dataset and provides a starting point for understanding booking and cancellation behaviour.
+Understanding cancellation behaviour can help the business identify areas where booking processes, communication or customer support could potentially be improved.
 
-
-#### SQL Query
+#### SQL Query — Overall Cancellation Rate
 
 ```sql
 SELECT
     COUNT(*) AS total_bookings,
-    ROUND(AVG("Total_Trip_Cost"), 2) AS average_trip_cost,
-    ROUND(AVG("Customer_Rating"), 2) AS average_customer_rating,
-    ROUND(AVG("Number_of_Nights"), 2) AS average_nights
+    SUM(
+        CASE
+            WHEN "Cancellation_Status" = 'Cancelled' THEN 1
+            ELSE 0
+        END
+    ) AS cancelled_bookings,
+    ROUND(
+        100.0 * SUM(
+            CASE
+                WHEN "Cancellation_Status" = 'Cancelled' THEN 1
+                ELSE 0
+            END
+        ) / COUNT(*),
+        1
+    ) AS cancellation_rate
 FROM travel_bookings;
+
+
+
+
+
+
+
+
+
 
 #### Result
 
-The query provides an overview of the booking dataset by calculating the total number of bookings, average trip cost, average customer rating and average number of nights.
+The dataset contains 1,000 bookings, of which 141 were cancelled. This represents an overall cancellation rate of **14.1%**.
+
+#### What does it tell us?
+
+Approximately 1 in 7 bookings in the dataset were cancelled. This provides a baseline for comparing cancellation patterns across different booking characteristics.
+
+#### Why does it matter to the business?
+
+Cancellation volume represents a potential operational and financial concern. Monitoring the cancellation rate can help the business understand where cancellations are concentrated and identify areas for further investigation.
+
+#### SQL Query — Cancellation Reasons
+
+```sql
+SELECT
+    "Cancellation_Reason",
+    COUNT(*) AS cancelled_bookings
+FROM travel_bookings
+WHERE "Cancellation_Status" = 'Cancelled'
+GROUP BY "Cancellation_Reason"
+ORDER BY cancelled_bookings DESC;
+
+
+
