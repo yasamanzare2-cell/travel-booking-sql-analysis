@@ -43,3 +43,27 @@ Key fields used in the analysis include:
 - Number of Nights
 
 The dataset was analysed using SQL in PostgreSQL/Supabase and the results were visualised using Tableau.
+
+## Methodology
+
+The project followed a structured data analysis process:
+
+1. **Data Exploration** – Checked the dataset structure, record count and potential duplicate booking IDs.
+2. **Data Validation** – Reviewed key fields and checked for potential data quality issues.
+3. **Descriptive Analysis** – Calculated booking counts, cancellation rates, booking values and customer rating averages.
+4. **Segmentation** – Compared cancellation patterns across destinations, transportation, booking lead time, trip value and discount levels.
+5. **Customer Experience Analysis** – Examined customer ratings across transportation, hotel rating, meal plan and trip length.
+6. **Financial Analysis** – Calculated the total booking value and the value associated with cancelled bookings.
+7. **Visualisation** – Created a Tableau dashboard to present the main findings and make the results easier to interpret.
+
+### SQL Techniques Used
+
+- `COUNT()` and `SUM()`
+- `AVG()`
+- `GROUP BY`
+- `WHERE`
+- `CASE WHEN`
+- Common Table Expressions (CTEs)
+- Filtering and sorting
+- Percentage calculations
+- Comparative analysis
