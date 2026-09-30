@@ -21,3 +21,25 @@ The analysis focuses on:
 - How customer ratings vary across transportation, hotel rating, meal plan and trip length
 
 The findings can help the business identify patterns in cancellations and customer experience that may support better booking management and customer-focused decisions.
+
+## Dataset
+
+The dataset contains **1,000 travel booking records** with information relating to bookings, travel dates, destinations, transportation, trip costs, discounts, cancellation status and customer experience.
+
+Key fields used in the analysis include:
+
+- Booking ID
+- Booking Date
+- Travel Date
+- Destination City
+- Transportation
+- Total Trip Cost
+- Discount
+- Cancellation Status
+- Cancellation Reason
+- Customer Rating
+- Hotel Rating
+- Meal Plan
+- Number of Nights
+
+The dataset was analysed using SQL in PostgreSQL/Supabase and the results were visualised using Tableau.
