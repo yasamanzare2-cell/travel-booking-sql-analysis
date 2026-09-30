@@ -98,3 +98,14 @@ The analysis followed a structured process using SQL to explore the booking data
 
 - **PostgreSQL / Supabase** – Data analysis and SQL queries
 - **Tableau** – Data visualisation and dashboard development
+
+
+## SQL Business Analysis
+
+### Analysis 1 — Booking Overview
+
+#### Business Question
+
+What does the overall booking performance look like?
+
+This analysis establishes the basic scale of the dataset and provides a starting point for understanding booking and cancellation behaviour.
