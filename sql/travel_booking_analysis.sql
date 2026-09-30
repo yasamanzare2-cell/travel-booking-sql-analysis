@@ -382,3 +382,39 @@ ORDER BY
     MIN("Discount_Amount");
 
 
+-- 2.2 Analyse cancellation rate by destination
+-- Only destinations with at least 20 bookings are included
+-- to avoid drawing conclusions from very small samples.
+
+SELECT
+    "Destination_City",
+    COUNT(*) AS total_bookings,
+
+    SUM(
+        CASE
+            WHEN "Cancellation_Status" = 'Cancelled' THEN 1
+            ELSE 0
+        END
+    ) AS cancelled_bookings,
+
+    ROUND(
+        (
+            100.0 * SUM(
+                CASE
+                    WHEN "Cancellation_Status" = 'Cancelled' THEN 1
+                    ELSE 0
+                END
+            ) / COUNT(*)
+        )::numeric,
+        1
+    ) AS cancellation_rate
+
+FROM travel_bookings
+
+GROUP BY "Destination_City"
+
+HAVING COUNT(*) >= 20
+
+ORDER BY cancellation_rate DESC;
+
+
