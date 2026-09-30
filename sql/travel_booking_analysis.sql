@@ -29,7 +29,11 @@ GROUP BY "Booking_ID"
 HAVING COUNT(*) > 1;
 
 
--- 1.3 Calculate overall cancellation rate
+-- ==========================================
+-- 2. CANCELLATION ANALYSIS
+-- ==========================================
+
+-- 2.1 Calculate overall cancellation rate
 
 SELECT
     COUNT(*) AS total_bookings,
@@ -51,7 +55,7 @@ SELECT
 FROM travel_bookings;
 
 
--- 1.4 Analyse cancellation reasons
+-- 2.2 Analyse cancellation reasons
 
 SELECT
     "Cancellation_Reason",
@@ -62,7 +66,7 @@ GROUP BY "Cancellation_Reason"
 ORDER BY cancelled_bookings DESC;
 
 
--- 1.5 Analyse cancellation rate by transportation type
+-- 2.3 Analyse cancellation rate by transportation type
 
 SELECT
     "Transportation_Type",
@@ -87,7 +91,7 @@ GROUP BY "Transportation_Type"
 ORDER BY cancellation_rate DESC;
 
 
--- 1.6 Analyse cancellation rate by destination
+-- 2.4 Analyse cancellation rate by destination
 
 -- Only destinations with at least 20 bookings are included
 -- to avoid drawing conclusions from very small samples.
@@ -116,7 +120,7 @@ HAVING COUNT(*) >= 20
 ORDER BY cancellation_rate DESC;
 
 
--- 1.7 Analyse cancellation rate by booking lead time
+-- 2.5 Analyse cancellation rate by booking lead time
 -- Booking lead time is calculated as the number of days
 -- between the booking date and travel date.
 
@@ -170,7 +174,7 @@ ORDER BY
     END;
 
 
--- 1.8 Analyse cancellation rate by trip value
+-- 2.6 Analyse cancellation rate by trip value
 -- Groups bookings by total trip cost to assess cancellation behaviour
 -- and the trip value associated with cancelled bookings.
 
@@ -234,109 +238,7 @@ ORDER BY
     END;
 
 
--- 1.9 Customer rating distribution
--- Groups customer ratings into broader bands
--- to identify overall satisfaction patterns.
-
-SELECT
-    CASE
-        WHEN "Customer_Rating" < 2 THEN 'Below 2'
-        WHEN "Customer_Rating" < 3 THEN '2.0-2.9'
-        WHEN "Customer_Rating" < 4 THEN '3.0-3.9'
-        ELSE '4.0-5.0'
-    END AS rating_band,
-
-    COUNT(*) AS booking_count,
-
-    ROUND(
-        100.0 * COUNT(*) / SUM(COUNT(*)) OVER (),
-        1
-    ) AS percentage_of_rated_bookings
-
-FROM travel_bookings
-
-WHERE "Cancellation_Status" = 'Not Cancelled'
-  AND "Customer_Rating" > 0
-
-GROUP BY
-    CASE
-        WHEN "Customer_Rating" < 2 THEN 'Below 2'
-        WHEN "Customer_Rating" < 3 THEN '2.0-2.9'
-        WHEN "Customer_Rating" < 4 THEN '3.0-3.9'
-        ELSE '4.0-5.0'
-    END
-
-ORDER BY MIN("Customer_Rating");
-
-
--- 2.0 Analyse cancellation rate by trip value
--- Groups bookings by total trip cost to assess cancellation behaviour
--- and the trip value associated with cancelled bookings.
-
-WITH booking_value AS (
-    SELECT
-        "Booking_ID",
-        "Total_Trip_Cost",
-        "Cancellation_Status"
-    FROM travel_bookings
-),
-
-value_groups AS (
-    SELECT
-        CASE
-            WHEN "Total_Trip_Cost" < 100000 THEN 'Under 100k'
-            WHEN "Total_Trip_Cost" < 250000 THEN '100k-249k'
-            WHEN "Total_Trip_Cost" < 500000 THEN '250k-499k'
-            ELSE '500k+'
-        END AS trip_value_band,
-        "Total_Trip_Cost",
-        "Cancellation_Status"
-    FROM booking_value
-)
-
-SELECT
-    trip_value_band,
-    COUNT(*) AS total_bookings,
-
-    SUM(
-        CASE
-            WHEN "Cancellation_Status" = 'Cancelled' THEN 1
-            ELSE 0
-        END
-    ) AS cancelled_bookings,
-
-    ROUND(
-        100.0 * SUM(
-            CASE
-                WHEN "Cancellation_Status" = 'Cancelled' THEN 1
-                ELSE 0
-            END
-        ) / COUNT(*),
-        1
-    ) AS cancellation_rate,
-
-    SUM(
-        CASE
-            WHEN "Cancellation_Status" = 'Cancelled'
-            THEN "Total_Trip_Cost"
-            ELSE 0
-        END
-    ) AS cancelled_trip_value
-
-FROM value_groups
-
-GROUP BY trip_value_band
-
-ORDER BY
-    CASE trip_value_band
-        WHEN 'Under 100k' THEN 1
-        WHEN '100k-249k' THEN 2
-        WHEN '250k-499k' THEN 3
-        WHEN '500k+' THEN 4
-    END;
-
-
--- 2.1 Analyse cancellation rate by discount amount
+-- 2.7 Analyse cancellation rate by discount amount
 -- Groups bookings by discount amount to assess cancellation behaviour.
 
 SELECT
@@ -382,128 +284,172 @@ ORDER BY
     MIN("Discount_Amount");
 
 
--- 2.2 Analyse cancellation rate by destination
--- Only destinations with at least 20 bookings are included
--- to avoid drawing conclusions from very small samples.
+-- ==========================================
+-- 3. CUSTOMER EXPERIENCE
+-- ==========================================
+
+-- 3.1 Customer rating distribution
+-- Groups customer ratings into broader bands
+-- to identify overall satisfaction patterns.
 
 SELECT
-    "Destination_City",
-    COUNT(*) AS total_bookings,
+    CASE
+        WHEN "Customer_Rating" < 2 THEN 'Below 2'
+        WHEN "Customer_Rating" < 3 THEN '2.0-2.9'
+        WHEN "Customer_Rating" < 4 THEN '3.0-3.9'
+        ELSE '4.0-5.0'
+    END AS rating_band,
 
-    SUM(
-        CASE
-            WHEN "Cancellation_Status" = 'Cancelled' THEN 1
-            ELSE 0
-        END
-    ) AS cancelled_bookings,
+    COUNT(*) AS booking_count,
 
     ROUND(
-        (
-            100.0 * SUM(
-                CASE
-                    WHEN "Cancellation_Status" = 'Cancelled' THEN 1
-                    ELSE 0
-                END
-            ) / COUNT(*)
-        )::numeric,
+        100.0 * COUNT(*) / SUM(COUNT(*)) OVER (),
         1
-    ) AS cancellation_rate
+    ) AS percentage_of_rated_bookings
 
 FROM travel_bookings
 
-GROUP BY "Destination_City"
+WHERE "Cancellation_Status" = 'Not Cancelled'
+  AND "Customer_Rating" > 0
 
-HAVING COUNT(*) >= 20
+GROUP BY
+    CASE
+        WHEN "Customer_Rating" < 2 THEN 'Below 2'
+        WHEN "Customer_Rating" < 3 THEN '2.0-2.9'
+        WHEN "Customer_Rating" < 4 THEN '3.0-3.9'
+        ELSE '4.0-5.0'
+    END
 
-ORDER BY cancellation_rate DESC;
+ORDER BY MIN("Customer_Rating");
 
 
--- 2.3 Analyse cancellation rate by transportation type
--- Compares booking volume and cancellation behaviour across transport types.
+-- 3.2 Average customer rating by transportation type
+-- Compares customer ratings across different transportation types.
 
 SELECT
     "Transportation_Type",
+    COUNT(*) AS rated_bookings,
+    ROUND(AVG("Customer_Rating")::numeric, 2) AS average_customer_rating
+FROM travel_bookings
+WHERE "Cancellation_Status" = 'Not Cancelled'
+  AND "Customer_Rating" > 0
+GROUP BY "Transportation_Type"
+ORDER BY average_customer_rating DESC;
 
-    COUNT(*) AS total_bookings,
 
-    SUM(
-        CASE
-            WHEN "Cancellation_Status" = 'Cancelled' THEN 1
-            ELSE 0
-        END
-    ) AS cancelled_bookings,
+-- 3.3 Average customer rating by hotel rating band
+-- Examines whether broader hotel-rating levels are associated
+-- with differences in customer satisfaction.
+
+SELECT
+    CASE
+        WHEN "Hotel_Rating" < 2 THEN '1.0-1.9'
+        WHEN "Hotel_Rating" < 3 THEN '2.0-2.9'
+        WHEN "Hotel_Rating" < 4 THEN '3.0-3.9'
+        ELSE '4.0-5.0'
+    END AS hotel_rating_band,
+
+    COUNT(*) AS rated_bookings,
 
     ROUND(
-        (
-            100.0 * SUM(
-                CASE
-                    WHEN "Cancellation_Status" = 'Cancelled' THEN 1
-                    ELSE 0
-                END
-            ) / COUNT(*)
-        )::numeric,
-        1
-    ) AS cancellation_rate
+        AVG("Customer_Rating")::numeric,
+        2
+    ) AS average_customer_rating
 
 FROM travel_bookings
 
-GROUP BY "Transportation_Type"
+WHERE "Cancellation_Status" = 'Not Cancelled'
+  AND "Customer_Rating" > 0
 
-ORDER BY cancellation_rate DESC;
+GROUP BY
+    CASE
+        WHEN "Hotel_Rating" < 2 THEN '1.0-1.9'
+        WHEN "Hotel_Rating" < 3 THEN '2.0-2.9'
+        WHEN "Hotel_Rating" < 4 THEN '3.0-3.9'
+        ELSE '4.0-5.0'
+    END
+
+ORDER BY
+    MIN("Hotel_Rating");
 
 
--- 2.4 Analyse cancellation rate by booking lead time
--- Examines whether the time between booking and travel
--- is associated with cancellation behaviour.
-
-WITH lead_time_data AS (
-    SELECT
-        CASE
-            WHEN "Travel_Date"::date - "Booking_Date"::date <= 30
-                THEN '0-30 days'
-            WHEN "Travel_Date"::date - "Booking_Date"::date <= 60
-                THEN '31-60 days'
-            WHEN "Travel_Date"::date - "Booking_Date"::date <= 90
-                THEN '61-90 days'
-            ELSE '90+ days'
-        END AS booking_lead_time,
-        "Cancellation_Status"
-    FROM travel_bookings
-)
+-- 3.4 Average customer rating by meal plan
+-- Compares customer ratings across different meal plans.
 
 SELECT
-    booking_lead_time,
+    "Meal_Plan",
+    COUNT(*) AS rated_bookings,
+    ROUND(AVG("Customer_Rating")::numeric, 2) AS average_customer_rating
+FROM travel_bookings
+WHERE "Cancellation_Status" = 'Not Cancelled'
+  AND "Customer_Rating" > 0
+GROUP BY "Meal_Plan"
+ORDER BY average_customer_rating DESC;
 
-    COUNT(*) AS total_bookings,
+
+-- 3.5 Explore number of nights
+-- Examines the distribution of trip length before creating
+-- meaningful groups for customer-experience analysis.
+
+SELECT
+    MIN("Number_of_Nights") AS minimum_nights,
+    MAX("Number_of_Nights") AS maximum_nights,
+    ROUND(AVG("Number_of_Nights")::numeric, 1) AS average_nights,
+    COUNT(*) AS total_bookings
+FROM travel_bookings
+WHERE "Cancellation_Status" = 'Not Cancelled'
+  AND "Customer_Rating" > 0;
+
+
+-- 3.5.1 Number of bookings by trip length
+-- Examines how bookings are distributed across different
+-- numbers of nights before creating trip-length bands.
+
+SELECT
+    "Number_of_Nights",
+    COUNT(*) AS rated_bookings,
+    ROUND(AVG("Customer_Rating")::numeric, 2) AS average_customer_rating
+FROM travel_bookings
+WHERE "Cancellation_Status" = 'Not Cancelled'
+  AND "Customer_Rating" > 0
+GROUP BY "Number_of_Nights"
+ORDER BY "Number_of_Nights";
+
+
+-- ==========================================
+-- 4. BUSINESS / FINANCIAL IMPACT
+-- ==========================================
+
+-- 4.1 Analyse booking value affected by cancellations
+-- Measures the total value of cancelled bookings
+-- and the proportion of overall booking value they represent.
+
+SELECT
+    SUM("Total_Trip_Cost") AS total_booking_value,
 
     SUM(
         CASE
-            WHEN "Cancellation_Status" = 'Cancelled' THEN 1
+            WHEN "Cancellation_Status" = 'Cancelled'
+            THEN "Total_Trip_Cost"
             ELSE 0
         END
-    ) AS cancelled_bookings,
+    ) AS cancelled_booking_value,
 
     ROUND(
-        (
-            100.0 * SUM(
-                CASE
-                    WHEN "Cancellation_Status" = 'Cancelled' THEN 1
-                    ELSE 0
-                END
-            ) / COUNT(*)
-        )::numeric,
+        100.0 *
+        SUM(
+            CASE
+                WHEN "Cancellation_Status" = 'Cancelled'
+                THEN "Total_Trip_Cost"
+                ELSE 0
+            END
+        )
+        / SUM("Total_Trip_Cost"),
         1
-    ) AS cancellation_rate
+    ) AS percentage_value_cancelled
 
-FROM lead_time_data
+FROM travel_bookings;
 
-GROUP BY booking_lead_time
 
-ORDER BY
-    CASE booking_lead_time
-        WHEN '0-30 days' THEN 1
-        WHEN '31-60 days' THEN 2
-        WHEN '61-90 days' THEN 3
-        WHEN '90+ days' THEN 4
-    END;
+
 
