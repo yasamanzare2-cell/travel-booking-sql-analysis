@@ -452,3 +452,58 @@ GROUP BY "Transportation_Type"
 ORDER BY cancellation_rate DESC;
 
 
+-- 2.4 Analyse cancellation rate by booking lead time
+-- Examines whether the time between booking and travel
+-- is associated with cancellation behaviour.
+
+WITH lead_time_data AS (
+    SELECT
+        CASE
+            WHEN "Travel_Date"::date - "Booking_Date"::date <= 30
+                THEN '0-30 days'
+            WHEN "Travel_Date"::date - "Booking_Date"::date <= 60
+                THEN '31-60 days'
+            WHEN "Travel_Date"::date - "Booking_Date"::date <= 90
+                THEN '61-90 days'
+            ELSE '90+ days'
+        END AS booking_lead_time,
+        "Cancellation_Status"
+    FROM travel_bookings
+)
+
+SELECT
+    booking_lead_time,
+
+    COUNT(*) AS total_bookings,
+
+    SUM(
+        CASE
+            WHEN "Cancellation_Status" = 'Cancelled' THEN 1
+            ELSE 0
+        END
+    ) AS cancelled_bookings,
+
+    ROUND(
+        (
+            100.0 * SUM(
+                CASE
+                    WHEN "Cancellation_Status" = 'Cancelled' THEN 1
+                    ELSE 0
+                END
+            ) / COUNT(*)
+        )::numeric,
+        1
+    ) AS cancellation_rate
+
+FROM lead_time_data
+
+GROUP BY booking_lead_time
+
+ORDER BY
+    CASE booking_lead_time
+        WHEN '0-30 days' THEN 1
+        WHEN '31-60 days' THEN 2
+        WHEN '61-90 days' THEN 3
+        WHEN '90+ days' THEN 4
+    END;
+
