@@ -336,3 +336,49 @@ ORDER BY
     END;
 
 
+-- 2.1 Analyse cancellation rate by discount amount
+-- Groups bookings by discount amount to assess cancellation behaviour.
+
+SELECT
+    CASE
+        WHEN "Discount_Amount" = 0 THEN 'No discount'
+        WHEN "Discount_Amount" < 10000 THEN 'Low discount'
+        WHEN "Discount_Amount" < 25000 THEN 'Medium discount'
+        ELSE 'High discount'
+    END AS discount_band,
+
+    COUNT(*) AS total_bookings,
+
+    SUM(
+        CASE
+            WHEN "Cancellation_Status" = 'Cancelled' THEN 1
+            ELSE 0
+        END
+    ) AS cancelled_bookings,
+
+    ROUND(
+        (
+            100.0 * SUM(
+                CASE
+                    WHEN "Cancellation_Status" = 'Cancelled' THEN 1
+                    ELSE 0
+                END
+            ) / COUNT(*)
+        )::numeric,
+        1
+    ) AS cancellation_rate
+
+FROM travel_bookings
+
+GROUP BY
+    CASE
+        WHEN "Discount_Amount" = 0 THEN 'No discount'
+        WHEN "Discount_Amount" < 10000 THEN 'Low discount'
+        WHEN "Discount_Amount" < 25000 THEN 'Medium discount'
+        ELSE 'High discount'
+    END
+
+ORDER BY
+    MIN("Discount_Amount");
+
+
