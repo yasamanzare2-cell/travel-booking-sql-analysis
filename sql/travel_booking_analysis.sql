@@ -267,3 +267,72 @@ GROUP BY
     END
 
 ORDER BY MIN("Customer_Rating");
+
+
+-- 2.0 Analyse cancellation rate by trip value
+-- Groups bookings by total trip cost to assess cancellation behaviour
+-- and the trip value associated with cancelled bookings.
+
+WITH booking_value AS (
+    SELECT
+        "Booking_ID",
+        "Total_Trip_Cost",
+        "Cancellation_Status"
+    FROM travel_bookings
+),
+
+value_groups AS (
+    SELECT
+        CASE
+            WHEN "Total_Trip_Cost" < 100000 THEN 'Under 100k'
+            WHEN "Total_Trip_Cost" < 250000 THEN '100k-249k'
+            WHEN "Total_Trip_Cost" < 500000 THEN '250k-499k'
+            ELSE '500k+'
+        END AS trip_value_band,
+        "Total_Trip_Cost",
+        "Cancellation_Status"
+    FROM booking_value
+)
+
+SELECT
+    trip_value_band,
+    COUNT(*) AS total_bookings,
+
+    SUM(
+        CASE
+            WHEN "Cancellation_Status" = 'Cancelled' THEN 1
+            ELSE 0
+        END
+    ) AS cancelled_bookings,
+
+    ROUND(
+        100.0 * SUM(
+            CASE
+                WHEN "Cancellation_Status" = 'Cancelled' THEN 1
+                ELSE 0
+            END
+        ) / COUNT(*),
+        1
+    ) AS cancellation_rate,
+
+    SUM(
+        CASE
+            WHEN "Cancellation_Status" = 'Cancelled'
+            THEN "Total_Trip_Cost"
+            ELSE 0
+        END
+    ) AS cancelled_trip_value
+
+FROM value_groups
+
+GROUP BY trip_value_band
+
+ORDER BY
+    CASE trip_value_band
+        WHEN 'Under 100k' THEN 1
+        WHEN '100k-249k' THEN 2
+        WHEN '250k-499k' THEN 3
+        WHEN '500k+' THEN 4
+    END;
+
+
